@@ -54,4 +54,6 @@
 
 - backup components for arduino?
 
-- 
+    - 5x 5v ac adapters (we have 18, need >=18)
+
+    - 2x Arduino Uno + USB cables (+ enclosures? http://a.co/f9sCkdF)
