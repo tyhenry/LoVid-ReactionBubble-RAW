@@ -27,7 +27,7 @@ struct payload_t { // Structure of our payload
 };
 /*--------------------------------------------------------*/
 
-unsigned long capVals [6] = {10000,10000,10000,10000,10000,10000};
+unsigned long capVals [6] = {0000,0000,0000,0000,0000,0000};
 unsigned long lastBeamBreak = 0;
 unsigned long beamBreakWait = 3000;
 unsigned long lastCapSensor = 0;
@@ -81,14 +81,16 @@ void loop() {
     unsigned long val = 0;
     if ( header >= 'F' && header <= 'K' ) {
       int idx = header - 'F';
-      val = capVals[idx] + random(-1000,1000);
+      long newVal = capVals[idx] + random(-1000,1000);
+      if (newVal > 0)
+        val = newVal;
       capVals[idx] = val;
     }
     else {
       val = random(200,20000);
     }
     serialOutRaw(header,val);
-    capSensorWait = random(10,300);
+    capSensorWait = random(10,100);
     lastCapSensor = millis();
     
   }
