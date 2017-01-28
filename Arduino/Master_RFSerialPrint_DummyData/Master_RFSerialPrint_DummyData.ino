@@ -29,7 +29,9 @@ struct payload_t { // Structure of our payload
 
 unsigned long capVals [6] = {10000,10000,10000,10000,10000,10000};
 unsigned long lastBeamBreak = 0;
-unsigned long beamBreakWait = 3;
+unsigned long beamBreakWait = 3000;
+unsigned long lastCapSensor = 0;
+unsigned long capSensorWait = 800;
 
 void setup() {
   
@@ -41,6 +43,8 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("\nLOVID REACTION BUBBLE: MASTER RF SERIAL PRINT -- DUMMY DATA\n");
+
+  randomSeed(analogRead(0));
 }
 
 void loop() {
@@ -57,8 +61,6 @@ void loop() {
     serialOut(header.from_node, payload.rfCode);
   }
   */
-
-  randomSeed(analogRead(0));
   
   if (millis() - lastBeamBreak > beamBreakWait) {
 
@@ -66,25 +68,28 @@ void loop() {
 
     char header = 'A' + (char)random(5);
     serialOutRaw(header, 62500);
-    beamBreakWait = random(1,6);
+    beamBreakWait = random(1000,3000);
     lastBeamBreak = millis();
   }
 
-  else {
+  else if (millis() - lastCapSensor > capSensorWait) {
 
     // do cap sensor
-
-    unsigned int idx = random(7); // 1 extra for fake spurious data
-    char header = 'F' + idx; 
+    
+    byte rand = random(0,7); // 1 extra for fake spurious data
+    char header = 'F' + rand;
     unsigned long val = 0;
-    if (idx >= 0 && idx < 6 ) {
-      val = capVals[idx] + random(-100,100);
+    if ( header >= 'F' && header <= 'K' ) {
+      int idx = header - 'F';
+      val = capVals[idx] + random(-1000,1000);
       capVals[idx] = val;
     }
     else {
       val = random(200,20000);
     }
     serialOutRaw(header,val);
+    capSensorWait = random(10,300);
+    lastCapSensor = millis();
     
   }
 }
