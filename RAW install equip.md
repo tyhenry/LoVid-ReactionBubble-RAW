@@ -26,7 +26,7 @@
     __AV Toolbox AVT-8710__  
 	https://www.bhphotovideo.com/c/product/276891-REG/AV_Toolbox_AVT_8710_AVT_8710_Multi_Standard_Time_Base.html
 
-	- Capture deck
+	- NSTC RCA Capture deck
 
         - if PC:  
         __Osprey 100e composite video capture card__  
@@ -42,6 +42,16 @@
             https://github.com/elliotwoods/ofxBlackmagic2
             __ofxBlackMagic__  
             https://github.com/kylemcdonald/ofxBlackmagic
+
+    - or Scaler and HDMI Capture Deck
+
+        - Composite to HDMI scaler:
+        __KanexPro CON-AV-HD4K__  
+        https://www.bhphotovideo.com/c/product/1208856-REG/kanexpro_con_av_hd4k_composite_s_video_to_4k_hdmi.html
+
+        - USB3 HDMI Capture Deck (simulates webcam):
+        __Magewell XI100DUSB-HDMI__  
+        http://a.co/cTUwfeA
 
 - HDMI/VGA splitters
 
