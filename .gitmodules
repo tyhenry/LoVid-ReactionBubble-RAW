@@ -1,0 +1,3 @@
+[submodule "LoVid-ReactionBubble-RAW-oF"]
+	path = openFrameworks
+	url = https://github.com/tyhenry/LoVid-ReactionBubble-RAW-oF.git
