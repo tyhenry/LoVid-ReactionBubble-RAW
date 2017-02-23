@@ -31,11 +31,9 @@ const int codes[codeArraySize] = {1000, 1200, 1400, 1600, 1800};
 /*--------------------------------------------------------*/
 
 // node address of this IR beam for RF24Network:
-const uint16_t rfNode = 011;
+const uint16_t rfNode = 01;
 
-// IR beams are addressed: 011, 021, 031, 041, 051
-// CAP sensors are addressed: 012, 022, 032, 042, 052, 0152 (child of 052)
-// Relays are addressed: 01 (IR), 02 (CAP)
+// IR beams are addressed: 01, 02, 03, 04, 05
 // Master receiver Arduino Uno is base node: 00
 /*--------------------------------------------------------*/
 
@@ -62,7 +60,7 @@ volatile boolean paused = false;
 volatile boolean beamBroken = false;
 volatile boolean beamBrokenNew = true;
 
-boolean codeDetectMode = false;
+boolean codeDetectMode = true;
 
 /* RF24Network setup */
 /*--------------------------------------------------------*/
@@ -98,10 +96,12 @@ ISR(TIMER1_COMPA_vect){ //timer1 interrupt at 16Hz (62.5 milliseconds)
 
 
 void setup() {
+
+  Serial.begin(115200);
   
-  SPI.begin();
-  radio.begin(); // start the RF24 module
-  network.begin(90, rfNode); // start the RF24 network on channel 90 with rfNode address
+//  SPI.begin();
+//  radio.begin(); // start the RF24 module
+//  network.begin(90, rfNode); // start the RF24 network on channel 90 with rfNode address
   
   pinMode(inputCapturePin, INPUT); // ICP pin (digital pin 8 on Arduino) as input
   pinMode(ledBBPin, OUTPUT); // LED on when beam break detected
@@ -134,10 +134,10 @@ void setup() {
 
 void loop(){
 
-  network.update();
+//  network.update();
   
   if (bursted && codeDetectMode){ // run if a burst was detected
-  
+
     burstCounts[burstIndex] = burstCount; // save the current burst count in the array 
     
     if(burstIndex == 2){ // if array is full
@@ -145,6 +145,7 @@ void loop(){
       // calculate time (microseconds) values of burstCounts array
       for(int i = 0 ; i < 3 ; i++){
         burstTimes[i] = calcTime(burstCounts[i]);
+        Serial.println(burstTimes[i]);
       }
       
       // bubble sort (i.e. from small to large) the time value array for easy comparisons
@@ -160,17 +161,19 @@ void loop(){
           unsigned long avg = (burstTimes[i+1] + burstTimes[i]) / 2; //use average to check for matches to CODE values
 
           for (int j=0; j<codeArraySize; j++){ // check the CODE value array for matches
-            if (avg > codes[j]-50 && avg < codes[j]+50){ //if the avg of the two values is within 100 micros of a CODE
+            if (avg > codes[j]-75 && avg < codes[j]+75){ //if the avg of the two values is within 150 micros of a CODE
 
               // SEND MATCHED CODE VALUE TO RF
               unsigned long code = codes[j];
-              sendRF(code); // CODE value received
+//              sendRF(code); // CODE value received
+              Serial.print("MATCH: ");
+              Serial.println(code);
               bMatched = true;
               break;
             }
           }
+          if (bMatched) break; // just find one match per 3 bursts
         }
-        if (bMatched) break; // only find 1 match per 3 codes received
       }
       burstIndex = 0;
     }
@@ -184,7 +187,9 @@ void loop(){
   
   if (beamBroken){    
     if (beamBrokenNew){
-      sendRF(62500); // send beam break value of 62500
+//      sendRF(62500); // send beam break value of 62500
+      Serial.print("BREAK: ");
+      Serial.println(62500);
       beamBrokenNew = false;
     }
     digitalWrite(ledBBPin, HIGH);

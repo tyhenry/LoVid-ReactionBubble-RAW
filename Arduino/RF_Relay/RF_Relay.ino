@@ -1,15 +1,4 @@
 
-/*
- * Capacitive Sensor and Radio Tx for LoVid Reaction Bubble Project
- * by Tyler Henry
- * 
- * 10M Ohm resistor between pins 4 (send) and 8 (receive)
- * pin 8 is sensor pin
- * 
- */
-
-#include <CapacitiveSensor.h>
-
 #include <RF24.h>
 #include <RF24Network.h>
 #include <SPI.h>
@@ -17,12 +6,12 @@
 /* RF24 NODE ADDRESS GOES HERE */
 /*--------------------------------------------------------*/
 
-// node address of this IR beam for RF24Network:
-const uint16_t rfNode = 03;
+// node address of this Arduino for RF24Network:
+const uint16_t rfNode = 01;
 
-// CAP sensors are addressed: 012, 022, 032, 042, 052, 03 (child of 00)
-// IR beams are addressed: 011, 021, 031, 041, 051
-// Relays are addressed: 01 (IR), 02 (CAP)
+// RF Relays are addressed 01 (IR), 02 (CAP)
+// IR beams are addressed: 011, 021, 031, 041, 051 (children of RF Relay 01)
+// Cap Sensors are addressed: 012, 022, 032, 042, 052, 0152 (children of RF Relay 02)
 // Master receiver Arduino Uno is base node: 00
 /*--------------------------------------------------------*/
 
@@ -32,29 +21,21 @@ RF24 radio(9,10); // RF module on pins 9,10
 RF24Network network(radio); // create the RF24Network object
 /*--------------------------------------------------------*/
 
+unsigned long timer = 0;
 
-CapacitiveSensor cap = CapacitiveSensor(4,8);
-
-void setup()                    
-{
-   //cap.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate
-
+void setup() {
   SPI.begin();
   radio.begin(); // start the RF24 module
   network.begin(90, rfNode); // start the RF24 network on channel 90 with rfNode address
 }
 
-void loop()                    
-{
+void loop() {
+   network.update();
 
-    network.update();
-    
-    long val =  cap.capacitiveSensor(50); // 50 is # samples - can experiment w/ this
-
-    if (val > 200){ // 200 is threshold, experiment w/ this
-     sendRF(val); // send reading to master node
-    }
-    delay(50); // delay to limit Tx data
+   if (millis() - timer > 10000) {
+     sendRF(1);
+     timer = millis();
+   }
 }
 
 /* RF24 Network */
@@ -70,6 +51,3 @@ void sendRF(unsigned long _rfCode){
   network.write(header,&payload,sizeof(payload));
   
 }
-
-
-

@@ -15,9 +15,14 @@
 
 /* RF24Network setup */
 /*--------------------------------------------------------*/
-// node address for RF24Network:
-const uint16_t rfNode = 00; // Master receiver Arduino Uno is base node: 00
-// IR beams are addressed: 01, 02, 03, 04, 05
+
+// node address of this arduino for RF24Network:
+const uint16_t rfNode = 00;
+
+// Master receiver Arduino Uno is base node: 00
+// RF Relays are addressed 01 (IR), 02 (CAP)
+// IR beams are addressed: 011, 021, 031, 041, 051 (children of RF Relay 01)
+// Cap Sensors are addressed: 012, 022, 032, 042, 052, 03 (children of RF Relay 02, and 00)
 
 RF24 radio(9,10); // RF module on pins 9,10
 RF24Network network(radio); // create the RF24Network object
@@ -55,20 +60,28 @@ void serialOut(uint16_t node, unsigned long code){
   char nChar = 0;
   
   // infrared beams
-  if (node == 01) nChar = 'A';
-  else if (node == 02) nChar = 'B';
-  else if (node == 03) nChar = 'C';
-  else if (node == 04) nChar = 'D';
-  else if (node == 05) nChar = 'E';
+  if (node == 011) nChar = 'A';
+  else if (node == 021) nChar = 'B';
+  else if (node == 031) nChar = 'C';
+  else if (node == 041) nChar = 'D';
+  else if (node == 051) nChar = 'E';
   
   // cap bowls
-  else if (node == 011) nChar = 'F';
-  else if (node == 021) nChar = 'G';
-  else if (node == 031) nChar = 'H';
-  else if (node == 041) nChar = 'I';
-  else if (node == 051) nChar = 'J';
-  else if (node == 0151) nChar = 'K';
-  
+  else if (node == 012) nChar = 'F';
+  else if (node == 022) nChar = 'G';
+  else if (node == 032) nChar = 'H';
+  else if (node == 042) nChar = 'I';
+  else if (node == 052) nChar = 'J';
+  else if (node == 0152) nChar = 'K';
+  else if (node == 03) nChar = 'K';
+
+  // RF relays
+  else if (node == 01) { nChar = 'R'; code = 1; } // IR
+  else if (node == 02) { nChar = 'R'; code = 2; } // CAP
+
+  // error
+  else nChar = 'x';
+    
   Serial.print(nChar);
   Serial.print(code);
   Serial.print('\n');
