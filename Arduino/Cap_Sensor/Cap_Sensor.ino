@@ -18,9 +18,9 @@
 /*--------------------------------------------------------*/
 
 // node address of this IR beam for RF24Network:
-const uint16_t rfNode = 03;
+const uint16_t rfNode = 042;
 
-// CAP sensors are addressed: 012, 022, 032, 042, 052, 03 (child of 00)
+// CAP sensors are addressed: 012, 022, 032, 042, 052, 03 (6th cap is child of 00)
 // IR beams are addressed: 011, 021, 031, 041, 051
 // Relays are addressed: 01 (IR), 02 (CAP)
 // Master receiver Arduino Uno is base node: 00
@@ -37,19 +37,28 @@ CapacitiveSensor cap = CapacitiveSensor(4,8);
 
 void setup()                    
 {
-   //cap.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate
 
   SPI.begin();
   radio.begin(); // start the RF24 module
   network.begin(90, rfNode); // start the RF24 network on channel 90 with rfNode address
+
+//  cap.reset_CS_AutoCal();
+//  cap.set_CS_AutocaL_Millis(3000);
+
+  cap.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate
+
 }
 
 void loop()                    
 {
 
+//    if (millis() > 10000 && millis() < 11000) {
+//      cap.set_CS_AutocaL_Millis(0xFFFFFFFF);     // turn off autocalibrate
+//    }
+
     network.update();
     
-    long val =  cap.capacitiveSensor(50); // 50 is # samples - can experiment w/ this
+    long val =  cap.capacitiveSensor(30); // 50 is # samples - can experiment w/ this
 
     if (val > 200){ // 200 is threshold, experiment w/ this
      sendRF(val); // send reading to master node
